@@ -3,8 +3,8 @@ const express = require('express')
 
 connectToMongo();
 
-const app = express()
-const port = 5000
+const app = express();
+const port = 5000;
 
 //Middleware used to use req.body
 app.use(express.json())
@@ -21,5 +21,5 @@ app.get('/', (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(`Example app listening on port http://localhost:${port}`)
+  console.log(`eNoteBook app is listening on port http://localhost:${port}`)
 })
