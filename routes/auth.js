@@ -20,7 +20,7 @@ Router.post('/createuser' ,[
     // const user = User(req.body)
     // user.save()
     //res.send(req.body)
-    
+    let success = false
     //If there are errors return bad request and error message
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -40,7 +40,7 @@ Router.post('/createuser' ,[
         //Check whether the user with this email exists
     let userWithSameEmail = await User.findOne({email:req.body.email})
     if(userWithSameEmail){
-        return res.status(400).json({error : 'Sorry the user with this email already Exists'})
+        return res.status(400).json({success , error : 'Sorry the user with this email already Exists'})
     }
     //Method to sending data to database
     let user = await User.create({
@@ -69,12 +69,12 @@ Router.post('/createuser' ,[
       //Generating token for the users
       const authToken =  jwt.sign(data,JWT_SECRET)
       //Sending token as response to user
-      res.json({authToken})
+      res.json({success:true , authToken})
 
     
     } catch (error) {
       console.log(error.message)
-      res.status(500).send("Internal Server Error")
+      res.status(500).send({success:false,message:"Internal Server Error"})
     }
     
 })
@@ -86,6 +86,7 @@ Router.post('/login',[
   body('password','password should not be blank').exists()
 ],async (req,res)=>{
   
+  let success = false
   //If there are errors return bad request and error message
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -100,13 +101,13 @@ Router.post('/login',[
   try {
     let user = await User.findOne({email})
     if(!user){
-      return res.status(400).json({error : 'Please enter the valid Credentials'})
+      return res.status(400).json({success , error : 'Please enter the valid Credentials'})
     }
     
     //Comparing the password entered by user and password stored in database
     const passwordCompare = await bcrypt.compare(password,user.password)
     if(!passwordCompare){
-      return res.status(400).json({error : 'Please enter the valid Credentials'})
+      return res.status(400).json({success ,error : 'Please enter the valid Credentials'})
     }
     
     const data ={
@@ -120,12 +121,13 @@ Router.post('/login',[
     //Generating token for the users
     const authToken =  jwt.sign(data,JWT_SECRET)
     //Sending token as response to user
-    res.json({authToken})
+   
+    res.json({success:true , authToken})
 
 
   } catch (error) {
     console.log(error.message)
-    res.status(500).send("Internal Server Error")
+    res.status(500).send({success:false,message:"Internal Server Error"})
   }
 })
 
@@ -133,15 +135,17 @@ Router.post('/login',[
 //ROUTE 3 : Getting logged in user details using POST: "/api/auth/getuser" Login Required
 
 Router.post('/getuser' ,fetchuser , async (req,res)=>{
-   
+
+
    try {
+    let success = false
     let userId = req.user.id
     const user = await User.findById(userId).select("-password")
-    res.send(user)
+    res.send({success:true , user})
     
    } catch (error) {
     console.log(error.message)
-    res.status(500).send("Internal Server Error")
+    res.status(500).send({success:false,message:"Internal Server Error"})
   }
 
 
